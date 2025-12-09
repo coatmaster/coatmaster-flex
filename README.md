@@ -149,6 +149,46 @@ A list of items. It uses `keyCapture` to allow the user to scroll through its co
 * `keyCapture` (bool): If `true`, this item will capture all key events (up, down, left, right, ok, back) until set to `false`. This is useful for components like lists or combo boxes that need to handle navigation internally.
 * all properties of QtQuick.Controls ListView
 
+### `FlexScrollView`
+
+A scrollable area for content that exceeds the screen size. It's based on `Flickable` and integrates with the navigation system to allow scrolling using the hardware keys.
+
+When the component is focused, a border is drawn around it. Pressing the OK button captures the up/down keys, allowing the user to scroll through the content. Pressing OK again or the Back key releases the key capture and returns to normal grid navigation.
+
+**Properties:**
+* `navigationRow` (int): The row position of the item in the navigation grid.
+* `navigationColumn` (int): The column position of the item in the navigation grid.
+* `content` (default property): Assign QML items here to make them part of the scrollable content.
+
+**Signals:**
+* `keyBack()`: Fired when the back key is pressed while the view is capturing keys for scrolling.
+
+**Example Usage:**
+```qml
+FlexScrollView {
+    navigationRow: 0
+    navigationColumn: 0
+    width: parent.width
+    height: 200 // Set a fixed height for the scrollable area
+
+    onKeyBack: console.log("Back pressed from scroll view")
+
+    content: [
+        Text {
+            text: "Very long text that needs to be scrolled..."
+            wrapMode: Text.WordWrap
+            width: parent.width
+        },
+        Rectangle {
+            width: 50
+            height: 50
+            color: "red"
+            // More items...
+        }
+    ]
+}
+```
+
 ### `FlexCheckbox`
 
 A simple checkbox that toggles its `checked` state on activation.
@@ -183,6 +223,27 @@ A component for rendering a QR code from a given text string.
 * `text` (string): The text data to be encoded into the QR code.
 * `color` (color): The color of the dark modules of the QR code.
 * `backgroundColor` (color): The color of the light modules (the background) of the QR code.
+
+### `FlexTCP`
+
+A non-visual component that enables communication with a TCP server. It works by proxying TCP data over a WebSocket connection to the device's backend, which then forwards it to the target server. This is useful for integrating with PLCs or other industrial equipment on the local network. **Note: This component is only available when using the coatmaster local server, not with a cloud interface.**
+
+**Properties:**
+
+*   `ipAddress` (string): The IP address of the target TCP server.
+*   `port` (int): The port number of the target TCP server.
+*   `status` (string, read-only): The current status of the WebSocket connection (e.g., "Open", "Closed", "Error").
+*   `delimiter` (string): A string that is appended to every outgoing message. Defaults to ";".
+
+**Signals:**
+
+*   `commandReceived(var cmd, var args)`: Fired when a message is received that follows the format `COMMAND?ARG1=VAL1&ARG2=VAL2`. The signal provides the command string and an object with the parsed arguments.
+*   `messageReceived(var message)`: Fired for every raw message received from the TCP server.
+*   `error(var message)`: Fired when a connection error occurs.
+
+**Invokable Functions:**
+
+*   `sendMessage(string message)`: Sends the given message string to the target TCP server.
 
 ---
 
